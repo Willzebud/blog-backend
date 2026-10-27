@@ -8,10 +8,8 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
 
 import { CommentsService } from './comments.service.js';
 import { CreateCommentDto } from './_utils/dto/request/create-comment.dto.js';
@@ -25,10 +23,7 @@ import { ApiGetComments } from './_utils/decorators/api-get-comments.decorator.j
 import { ApiCreateComment } from './_utils/decorators/api-create-comment.decorator.js';
 import { ApiUpdateComment } from './_utils/decorators/api-update-comment.decorator.js';
 import { ApiDeleteComment } from './_utils/decorators/api-delete-comment.decorator.js';
-
-type AuthenticatedRequest = Request & {
-  user: GetUserDto;
-};
+import { CurrentUser } from '../shared/decorators/current-user.decorator.js';
 
 @Controller()
 export class CommentsController {
@@ -50,13 +45,9 @@ export class CommentsController {
   create(
     @Param('articleId', ParseObjectIdPipe) articleId: string,
     @Body() body: CreateCommentDto,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: GetUserDto,
   ): Promise<GetCommentDto> {
-    return this.commentsService.createComment(
-      articleId,
-      req.user.id,
-      body.content,
-    );
+    return this.commentsService.createComment(articleId, user.id, body.content);
   }
 
   // Update comment
@@ -66,9 +57,9 @@ export class CommentsController {
   update(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() body: UpdateCommentDto,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: GetUserDto,
   ): Promise<GetCommentDto> {
-    return this.commentsService.updateComment(id, body, req.user.id);
+    return this.commentsService.updateComment(id, body, user.id);
   }
 
   // Delete comment
@@ -78,8 +69,8 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteComment(
     @Param('id', ParseObjectIdPipe) id: string,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: GetUserDto,
   ): Promise<void> {
-    return this.commentsService.deleteComment(id, req.user.id);
+    return this.commentsService.deleteComment(id, user.id);
   }
 }

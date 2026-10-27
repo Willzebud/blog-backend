@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -13,12 +12,8 @@ import { JwtAuthGuard } from '../auth/_utils/guards/jwt-auth.guard.js';
 import { ParseObjectIdPipe } from '../shared/pipes/parse-object-id.pipe.js';
 import { GetUserDto } from '../users/_utils/dto/response/get-user.dto.js';
 import { ApiDeleteArticle } from '../articles/_utils/decorators/api-delete-article.decorator.js';
-import type { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-
-type AuthenticatedRequest = Request & {
-  user: GetUserDto;
-};
+import { CurrentUser } from '../shared/decorators/current-user.decorator.js';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -33,8 +28,8 @@ export class ArticleDeletionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteArticle(
     @Param('id', ParseObjectIdPipe) id: string,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser() user: GetUserDto,
   ): Promise<void> {
-    await this.articleDeletionService.deleteArticle(id, req.user);
+    await this.articleDeletionService.deleteArticle(id, user);
   }
 }
