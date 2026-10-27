@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller.js';
 import { ConfigService } from '@nestjs/config';
 import { UsersMapper } from '../users/_utils/mappers/users.mapper.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
-import { LocalStrategy } from './strategies/local.strategy.js';
 import { SessionsModule } from '../sessions/sessions.module.js';
 
 @Module({
@@ -23,6 +22,6 @@ import { SessionsModule } from '../sessions/sessions.module.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersMapper, JwtStrategy, LocalStrategy],
+  providers: [AuthService, UsersMapper, JwtStrategy],
 })
 export class AuthModule {}
