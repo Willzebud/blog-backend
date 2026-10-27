@@ -10,6 +10,5 @@ import { LikesModule } from '../likes/likes.module.js';
   imports: [ArticlesModule, CommentsModule, LikesModule],
   controllers: [ArticleDeletionController],
   providers: [ArticleDeletionService],
-  exports: [ArticleDeletionService],
 })
 export class ArticleDeletionModule {}

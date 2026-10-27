@@ -19,7 +19,7 @@ export class ArticlesRepository {
     return this.articleModel.create(article);
   }
 
-  async findAllarticles(): Promise<ArticleDocument[]> {
+  async findAllArticles(): Promise<ArticleDocument[]> {
     return this.articleModel.find().sort({ createdAt: -1 }).exec();
   }
 

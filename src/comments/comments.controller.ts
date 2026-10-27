@@ -78,7 +78,7 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @ApiDeleteComment()
   @HttpCode(HttpStatus.NO_CONTENT)
-  DeleteArticle(
+  deleteComment(
     @Param('id', ParseObjectIdPipe) id: string,
     @Req() req: AuthenticatedRequest,
   ): Promise<void> {

@@ -30,7 +30,7 @@ export class ArticlesService {
   }
 
   async findAllArticles(): Promise<GetArticleDto[]> {
-    const articles = await this.articleRepository.findAllarticles();
+    const articles = await this.articleRepository.findAllArticles();
 
     return articles.map((article) =>
       this.articleMapper.toGetArticleDto(article),

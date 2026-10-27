@@ -1,4 +1,3 @@
-import { plainToInstance } from 'class-transformer';
 import { GetUserDto } from '../dto/response/get-user.dto.js';
 import { UserDocument } from '../schemas/users.schema.js';
 import { Injectable } from '@nestjs/common';

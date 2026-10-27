@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateSessionDto } from './_utils/dto/request/create-session.data.js';
 import { Model } from 'mongoose';
 import { Session } from './_utils/schemas/session.schema.js';

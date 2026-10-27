@@ -1,4 +1,4 @@
-import { applyDecorators, HttpCode, HttpStatus } from '@nestjs/common';
+import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,

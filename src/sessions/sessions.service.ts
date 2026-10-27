@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository.js';
 import { createHash, randomBytes } from 'node:crypto';
 

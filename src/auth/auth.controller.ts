@@ -11,7 +11,7 @@ import {
 import { CreateUserDto } from '../users/_utils/dto/request/create-user.dto.js';
 import { AuthService } from './auth.service.js';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from '../users/_utils/dto/request/login-user.dto.js';
 import type { Request, Response } from 'express';
 import { ApiRegister } from './_utils/decorators/api-register.decorators.js';
