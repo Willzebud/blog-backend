@@ -1,12 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBody,
   ApiOkResponse,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { LoginUserDto } from '../../../users/_utils/dto/request/login-user.dto.js';
 
 export function ApiLogin() {
   return applyDecorators(
@@ -22,6 +20,5 @@ export function ApiLogin() {
     ApiUnauthorizedResponse({
       description: 'Email ou mot de passe incorrect',
     }),
-    ApiBody({ type: LoginUserDto }),
   );
 }
