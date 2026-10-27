@@ -21,33 +21,15 @@ export class ArticlesCounterService {
       return [];
     }
 
-    const articleIds = articles.map((article) => article.id);
-
-    const [commentsCounts, likesCounts] = await Promise.all([
-      this.commentsService.countCommentsByArticleIds(articleIds),
-      this.likesService.countLikesByArticleIds(articleIds),
-    ]);
-
-    return articles.map((article) => ({
-      ...article,
-      commentsCount: commentsCounts.get(article.id) ?? 0,
-      likesCount: likesCounts.get(article.id) ?? 0,
-    }));
+    return this.withCounts(articles);
   }
 
   async findArticleById(id: string): Promise<GetArticleDto> {
     const article = await this.articlesService.findArticleById(id);
 
-    const [commentsCounts, likesCounts] = await Promise.all([
-      this.commentsService.countCommentsByArticleIds([id]),
-      this.likesService.countLikesByArticleIds([id]),
-    ]);
+    const [articleWithCounts] = await this.withCounts([article]);
 
-    return {
-      ...article,
-      commentsCount: commentsCounts.get(id) ?? 0,
-      likesCount: likesCounts.get(id) ?? 0,
-    };
+    return articleWithCounts;
   }
 
   async updateArticle(
@@ -61,15 +43,26 @@ export class ArticlesCounterService {
       user,
     );
 
+    const [articleWithCounts] = await this.withCounts([updatedArticle]);
+
+    return articleWithCounts;
+  }
+
+  // Ajoute les compteurs avec un seul appel groupé par type de compteur
+  private async withCounts(
+    articles: GetArticleDto[],
+  ): Promise<GetArticleDto[]> {
+    const articleIds = articles.map((article) => article.id);
+
     const [commentsCounts, likesCounts] = await Promise.all([
-      this.commentsService.countCommentsByArticleIds([id]),
-      this.likesService.countLikesByArticleIds([id]),
+      this.commentsService.countCommentsByArticleIds(articleIds),
+      this.likesService.countLikesByArticleIds(articleIds),
     ]);
 
-    return {
-      ...updatedArticle,
-      commentsCount: commentsCounts.get(id) ?? 0,
-      likesCount: likesCounts.get(id) ?? 0,
-    };
+    return articles.map((article) => ({
+      ...article,
+      commentsCount: commentsCounts.get(article.id) ?? 0,
+      likesCount: likesCounts.get(article.id) ?? 0,
+    }));
   }
 }
