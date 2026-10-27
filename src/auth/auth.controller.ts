@@ -19,6 +19,7 @@ import { ApiLogin } from './_utils/decorators/api-login.decorators.js';
 import { ApiLogout } from './_utils/decorators/api-logout-decorators.js';
 import { ApiRefresh } from './_utils/decorators/api-refresh.decorators.js';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { REFRESH_TOKEN_DURATION } from '../sessions/sessions.service.js';
 
 // Options communes à la création et à la suppression du cookie de refresh token
 const REFRESH_COOKIE_OPTIONS: CookieOptions = {
@@ -118,7 +119,7 @@ export class AuthController {
   private setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie('refreshToken', refreshToken, {
       ...REFRESH_COOKIE_OPTIONS,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_TOKEN_DURATION,
     });
   }
 }

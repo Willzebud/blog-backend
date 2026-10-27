@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { GlobalExceptionFilter } from '../shared/filters/http-exception.filter.js';
+import { REFRESH_TOKEN_DURATION } from '../sessions/sessions.service.js';
 
 const validUser = {
   id: 'user-1',
@@ -221,6 +222,10 @@ describe('AuthController', () => {
           SameSite: 'Lax',
         });
         expect(cookie.attributes).not.toHaveProperty('Secure');
+        // Le cookie vit aussi longtemps que la session en base
+        expect(Number(cookie.attributes['Max-Age']) * 1000).toBe(
+          REFRESH_TOKEN_DURATION,
+        );
       }
 
       expect(login.value).toBe('refresh-token');
