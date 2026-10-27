@@ -24,7 +24,26 @@ const validCredentials = {
 const authServiceMock = {
   validateUser: vi.fn(),
   login: vi.fn(),
+  logout: vi.fn(),
+  refresh: vi.fn(),
 };
+
+// Découpe un en-tête Set-Cookie en { name, value, attributes }
+function parseSetCookie(header: string | undefined) {
+  const [pair, ...attributes] = (header ?? '').split('; ');
+  const [name, value] = pair.split('=');
+
+  return {
+    name,
+    value,
+    attributes: Object.fromEntries(
+      attributes.map((attribute) => {
+        const [key, attributeValue = true] = attribute.split('=');
+        return [key, attributeValue];
+      }),
+    ),
+  };
+}
 
 // Même configuration HTTP que main.ts
 async function createApp(module: TestingModule): Promise<INestApplication> {
@@ -149,6 +168,89 @@ describe('AuthController', () => {
       expect(cookie).toContain('Path=/api/auth');
       expect(cookie).toContain('HttpOnly');
       expect(cookie).toContain('SameSite=Lax');
+    });
+  });
+
+  describe('cookie refresh token', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
+    async function loginRefreshAndLogout() {
+      authServiceMock.validateUser.mockResolvedValue(validUser);
+      authServiceMock.login.mockResolvedValue({
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+      });
+      authServiceMock.refresh.mockResolvedValue({
+        accessToken: 'access-token-2',
+        refreshToken: 'refresh-token-2',
+      });
+
+      const login = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send(validCredentials)
+        .expect(200);
+      const refresh = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .set('Cookie', 'refreshToken=refresh-token')
+        .expect(200);
+      const logout = await request(app.getHttpServer())
+        .post('/api/auth/logout')
+        .set('Cookie', 'refreshToken=refresh-token-2')
+        .expect(204);
+
+      return {
+        login: parseSetCookie(login.headers['set-cookie']?.[0]),
+        refresh: parseSetCookie(refresh.headers['set-cookie']?.[0]),
+        logout: parseSetCookie(logout.headers['set-cookie']?.[0]),
+      };
+    }
+
+    it('doit poser le cookie au login et au refresh avec les mêmes attributs', async () => {
+      const { login, refresh } = await loginRefreshAndLogout();
+
+      for (const cookie of [login, refresh]) {
+        expect(cookie.name).toBe('refreshToken');
+        expect(cookie.attributes).toMatchObject({
+          'Max-Age': '604800',
+          Path: '/api/auth',
+          HttpOnly: true,
+          SameSite: 'Lax',
+        });
+        expect(cookie.attributes).not.toHaveProperty('Secure');
+      }
+
+      expect(login.value).toBe('refresh-token');
+      expect(refresh.value).toBe('refresh-token-2');
+      expect(authServiceMock.refresh).toHaveBeenCalledWith('refresh-token');
+    });
+
+    it('doit révoquer la session et effacer le cookie avec le même Path au logout', async () => {
+      const { login, logout } = await loginRefreshAndLogout();
+
+      expect(authServiceMock.logout).toHaveBeenCalledWith('refresh-token-2');
+      expect(logout.name).toBe('refreshToken');
+      expect(logout.value).toBe('');
+      expect(logout.attributes.Path).toBe(login.attributes.Path);
+      expect(logout.attributes).toMatchObject({
+        Expires: 'Thu, 01 Jan 1970 00:00:00 GMT',
+        HttpOnly: true,
+        SameSite: 'Lax',
+      });
+      expect(logout.attributes).not.toHaveProperty('Max-Age');
+    });
+
+    it('doit ajouter Secure à la création et à la suppression en production', async () => {
+      process.env.NODE_ENV = 'production';
+
+      const { login, refresh, logout } = await loginRefreshAndLogout();
+
+      expect(login.attributes.Secure).toBe(true);
+      expect(refresh.attributes.Secure).toBe(true);
+      expect(logout.attributes.Secure).toBe(true);
     });
   });
 });

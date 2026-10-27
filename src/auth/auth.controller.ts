@@ -13,12 +13,23 @@ import { CreateUserDto } from '../users/_utils/dto/request/create-user.dto.js';
 import { AuthService } from './auth.service.js';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from '../users/_utils/dto/request/login-user.dto.js';
-import type { Request, Response } from 'express';
+import type { CookieOptions, Request, Response } from 'express';
 import { ApiRegister } from './_utils/decorators/api-register.decorators.js';
 import { ApiLogin } from './_utils/decorators/api-login.decorators.js';
 import { ApiLogout } from './_utils/decorators/api-logout-decorators.js';
 import { ApiRefresh } from './_utils/decorators/api-refresh.decorators.js';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+
+// Options communes à la création et à la suppression du cookie de refresh token
+const REFRESH_COOKIE_OPTIONS: CookieOptions = {
+  httpOnly: true,
+  // Getter : NODE_ENV est lu à chaque requête, après le chargement du .env par ConfigModule
+  get secure() {
+    return process.env.NODE_ENV === 'production';
+  },
+  sameSite: 'lax',
+  path: '/api/auth',
+};
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -78,12 +89,7 @@ export class AuthController {
     try {
       await this.authService.logout(refreshToken);
     } finally {
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/api/auth',
-      });
+      res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
     }
   }
 
@@ -111,10 +117,7 @@ export class AuthController {
 
   private setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
+      ...REFRESH_COOKIE_OPTIONS,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
