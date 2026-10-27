@@ -16,7 +16,6 @@ import { CreateUserDto } from '../users/_utils/dto/request/create-user.dto.js';
 describe('AuthService', () => {
   let service: AuthService;
 
-  // Base utilisateurs en mémoire : l'email est stocké tel que reçu par createUser
   let storedUsers: { _id: string; userEmail: string; userPassword?: string }[];
 
   const usersServiceMock = {
@@ -209,7 +208,6 @@ describe('AuthService', () => {
 describe('AuthService - access tokens JWT', () => {
   let service: AuthService;
 
-  // Même configuration de signature que JwtModule dans AuthModule
   const jwtService = new JwtService({
     secret: 'test-secret',
     signOptions: { expiresIn: '15m' },

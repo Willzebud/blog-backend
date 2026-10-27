@@ -29,7 +29,6 @@ const authServiceMock = {
   refresh: vi.fn(),
 };
 
-// Découpe un en-tête Set-Cookie en { name, value, attributes }
 function parseSetCookie(header: string | undefined) {
   const [pair, ...attributes] = (header ?? '').split('; ');
   const [name, value] = pair.split('=');
@@ -46,7 +45,6 @@ function parseSetCookie(header: string | undefined) {
   };
 }
 
-// Même configuration HTTP que main.ts
 async function createApp(module: TestingModule): Promise<INestApplication> {
   const app = module.createNestApplication();
 
@@ -222,7 +220,6 @@ describe('AuthController', () => {
           SameSite: 'Lax',
         });
         expect(cookie.attributes).not.toHaveProperty('Secure');
-        // Le cookie vit aussi longtemps que la session en base
         expect(Number(cookie.attributes['Max-Age']) * 1000).toBe(
           REFRESH_TOKEN_DURATION,
         );

@@ -9,8 +9,6 @@ import { UsersMapper } from '../users/_utils/mappers/users.mapper.js';
 import { User } from '../users/_utils/schemas/users.schema.js';
 import { Session } from '../sessions/_utils/schemas/session.schema.js';
 
-// Compile le vrai graphe AuthModule -> UsersModule / SessionsModule,
-// avec des modèles Mongoose simulés (aucune connexion à MongoDB)
 describe('AuthModule', () => {
   let module: TestingModule;
 

@@ -18,14 +18,12 @@ export class ArticlesCounterController {
     private readonly articlesCounterService: ArticlesCounterService,
   ) {}
 
-  // Get All Articles
   @Get()
   @ApiGetAllArticles()
   findAllArticles(): Promise<GetArticleDto[]> {
     return this.articlesCounterService.findAllArticles();
   }
 
-  // Get Article
   @Get(':id')
   @ApiGetArticle()
   findArticleById(
@@ -34,7 +32,6 @@ export class ArticlesCounterController {
     return this.articlesCounterService.findArticleById(id);
   }
 
-  // Update Article
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateArticle()

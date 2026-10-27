@@ -29,7 +29,6 @@ import { CurrentUser } from '../shared/decorators/current-user.decorator.js';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  // Get comments by article
   @Get('articles/:articleId/comments')
   @ApiGetComments()
   getCommentsByArticleId(
@@ -38,7 +37,6 @@ export class CommentsController {
     return this.commentsService.getCommentsByArticleId(articleId);
   }
 
-  // Create comment
   @Post('articles/:articleId/comments')
   @UseGuards(JwtAuthGuard)
   @ApiCreateComment()
@@ -50,7 +48,6 @@ export class CommentsController {
     return this.commentsService.createComment(articleId, user.id, body.content);
   }
 
-  // Update comment
   @Patch('comments/:id')
   @UseGuards(JwtAuthGuard)
   @ApiUpdateComment()
@@ -62,7 +59,6 @@ export class CommentsController {
     return this.commentsService.updateComment(id, body, user.id);
   }
 
-  // Delete comment
   @Delete('comments/:id')
   @UseGuards(JwtAuthGuard)
   @ApiDeleteComment()

@@ -20,7 +20,6 @@ import { CurrentUser } from '../shared/decorators/current-user.decorator.js';
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
-  // Ajouter like
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiCreateLike()
@@ -31,7 +30,6 @@ export class LikesController {
     await this.likesService.createLike(articleId, user.id);
   }
 
-  // Retirer like
   @Delete()
   @UseGuards(JwtAuthGuard)
   @ApiDeleteLike()

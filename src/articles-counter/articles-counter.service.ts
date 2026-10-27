@@ -48,7 +48,6 @@ export class ArticlesCounterService {
     return articleWithCounts;
   }
 
-  // Ajoute les compteurs avec un seul appel groupé par type de compteur
   private async withCounts(
     articles: GetArticleDto[],
   ): Promise<GetArticleDto[]> {

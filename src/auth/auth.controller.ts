@@ -21,10 +21,8 @@ import { ApiRefresh } from './_utils/decorators/api-refresh.decorators.js';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { REFRESH_TOKEN_DURATION } from '../sessions/sessions.service.js';
 
-// Options communes à la création et à la suppression du cookie de refresh token
 const REFRESH_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  // Getter : NODE_ENV est lu à chaque requête, après le chargement du .env par ConfigModule
   get secure() {
     return process.env.NODE_ENV === 'production';
   },
@@ -37,7 +35,6 @@ const REFRESH_COOKIE_OPTIONS: CookieOptions = {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Post Register
   @Post('register')
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
@@ -54,7 +51,6 @@ export class AuthController {
     return { accessToken, user };
   }
 
-  // Post Login
   @Post('login')
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
@@ -80,7 +76,6 @@ export class AuthController {
     return { accessToken };
   }
 
-  // Post Logout
   @Post('logout')
   @ApiLogout()
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -94,7 +89,6 @@ export class AuthController {
     }
   }
 
-  // Post Refresh
   @Post('refresh')
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 60_000 } })

@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository.js';
 import { createHash, randomBytes } from 'node:crypto';
 
-// Durée de vie d'un refresh token : session en base et cookie (7 jours)
 export const REFRESH_TOKEN_DURATION = 7 * 24 * 60 * 60 * 1000;
 
 @Injectable()

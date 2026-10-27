@@ -75,7 +75,6 @@ describe('SessionsRepository - Integration', () => {
     });
 
     try {
-      // 1. Rotation A → B : doit réussir
       const firstRotation = await repository.rotateSession(
         tokenA,
         tokenB,
@@ -85,7 +84,6 @@ describe('SessionsRepository - Integration', () => {
       expect(firstRotation).not.toBeNull();
       expect(firstRotation?.tokenHash).toBe(tokenB);
 
-      // 2. Réutilisation de A : doit échouer
       const secondRotation = await repository.rotateSession(
         tokenA,
         tokenC,
@@ -94,7 +92,6 @@ describe('SessionsRepository - Integration', () => {
 
       expect(secondRotation).toBeNull();
 
-      // 3. Rotation B → C : doit réussir
       const thirdRotation = await repository.rotateSession(
         tokenB,
         tokenC,
@@ -104,7 +101,6 @@ describe('SessionsRepository - Integration', () => {
       expect(thirdRotation).not.toBeNull();
       expect(thirdRotation?.tokenHash).toBe(tokenC);
     } finally {
-      // Nettoyage, même si une assertion échoue
       await sessionModel.deleteOne({ _id: session._id });
     }
   });
@@ -119,7 +115,6 @@ describe('SessionsRepository - Integration', () => {
     expect(session.userId).toBe('test-user-123');
     expect(session.tokenHash).toBe('test-token-hash');
 
-    // On supprime uniquement le document créé par ce test.
     await sessionModel.deleteOne({ _id: session._id });
   });
 });

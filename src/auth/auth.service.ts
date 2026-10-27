@@ -115,7 +115,6 @@ export class AuthService {
     return { refreshToken, accessToken };
   }
 
-  // La durée de validité (15 min) est définie par signOptions dans AuthModule
   private signAccessToken(userId: string, email: string): Promise<string> {
     return this.jwtService.signAsync({ sub: userId, userEmail: email });
   }

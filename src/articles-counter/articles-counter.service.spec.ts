@@ -12,7 +12,6 @@ const ID_1 = '6ae1186a93b1c3b39ee7496b';
 const ID_2 = '6ae1186a93b1c3b39ee7496c';
 const ID_3 = '6ae1186a93b1c3b39ee7496d';
 
-// Article tel que renvoyé par ArticlesService (compteurs à 0 posés par le mapper)
 function buildArticle(id: string): GetArticleDto {
   return {
     id,
@@ -145,7 +144,6 @@ describe('ArticlesCounterService', () => {
         { ...buildArticle(ID_2), commentsCount: 0, likesCount: 4 },
         { ...buildArticle(ID_3), commentsCount: 7, likesCount: 1 },
       ]);
-      // Un seul appel groupé par type de compteur, pas un appel par article
       expect(
         commentsServiceMock.countCommentsByArticleIds,
       ).toHaveBeenCalledExactlyOnceWith([ID_1, ID_2, ID_3]);

@@ -36,7 +36,6 @@ const currentUser: GetUserDto = {
   userEmail: 'willyam@test.dev',
 };
 
-// Récupère la fonction exécutée par Nest pour un décorateur créé avec createParamDecorator
 function getParamDecoratorFactory(decorator: () => ParameterDecorator) {
   class TestController {
     handler(@decorator() _value: unknown) {}
@@ -110,7 +109,6 @@ describe('Utilisateur authentifié dans les contrôleurs', () => {
         { provide: LikesService, useValue: likesServiceMock },
       ],
     })
-      // Simule JwtStrategy : request.user reçoit le GetUserDto de l'utilisateur
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (context: ExecutionContext) => {
