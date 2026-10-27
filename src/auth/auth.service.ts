@@ -27,7 +27,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<GetUserDto | null> {
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = this.normalizeEmail(email);
     const user = await this.usersService.findUserEmail(normalizedEmail);
 
     if (!user) {
@@ -59,7 +59,7 @@ export class AuthService {
   }
 
   async register(payload: CreateUserDto) {
-    const email = payload.userEmail.trim().toLowerCase();
+    const email = this.normalizeEmail(payload.userEmail);
     const user = await this.usersService.findUserEmail(email);
 
     if (user !== null) {
@@ -118,5 +118,9 @@ export class AuthService {
   // La durée de validité (15 min) est définie par signOptions dans AuthModule
   private signAccessToken(userId: string, email: string): Promise<string> {
     return this.jwtService.signAsync({ sub: userId, userEmail: email });
+  }
+
+  private normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
   }
 }

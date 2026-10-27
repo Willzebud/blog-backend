@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { vi } from 'vitest';
+import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service.js';
 import { SessionsService } from '../sessions/sessions.service.js';
 import { UsersMapper } from '../users/_utils/mappers/users.mapper.js';
@@ -16,7 +17,7 @@ describe('AuthService', () => {
   let service: AuthService;
 
   // Base utilisateurs en mémoire : l'email est stocké tel que reçu par createUser
-  let storedUsers: { _id: string; userEmail: string }[];
+  let storedUsers: { _id: string; userEmail: string; userPassword?: string }[];
 
   const usersServiceMock = {
     findUserEmail: vi.fn(),
@@ -109,6 +110,81 @@ describe('AuthService', () => {
       expect.objectContaining({ userEmail: 'willyam@test.dev' }),
     );
   });
+
+  it("doit normaliser l'email (espaces et majuscules) à l'inscription, sans toucher aux autres champs", async () => {
+    const payload: CreateUserDto = {
+      userEmail: '  WillYam@Test.DEV  ',
+      userPseudo: ' Willy ',
+      userFirstname: 'Willyam',
+      userLastname: 'Rib',
+      userAge: 32,
+      userPassword: 'MotDePasseTresLoooooooong',
+    };
+
+    await service.register(payload);
+
+    expect(usersServiceMock.findUserEmail).toHaveBeenCalledWith(
+      'willyam@test.dev',
+    );
+    expect(usersServiceMock.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userEmail: 'willyam@test.dev',
+        userPseudo: ' Willy ',
+        userFirstname: 'Willyam',
+        userLastname: 'Rib',
+      }),
+    );
+  });
+
+  it('doit détecter un doublon dont l’email contient des espaces et des majuscules', async () => {
+    const payload: CreateUserDto = {
+      userEmail: 'willyam@test.dev',
+      userPseudo: 'willy',
+      userFirstname: 'willyam',
+      userLastname: 'rib',
+      userAge: 32,
+      userPassword: 'MotDePasseTresLoooooooong',
+    };
+
+    await service.register(payload);
+
+    await expect(
+      service.register({ ...payload, userEmail: '  WillYam@Test.DEV  ' }),
+    ).rejects.toThrow(new ConflictException('Adresse email déjà utilisée'));
+    expect(usersServiceMock.createUser).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ['normalisé', 'willyam@test.dev'],
+    ['avec majuscules', 'WillYam@Test.DEV'],
+    ['avec espaces et majuscules', '  WillYam@Test.DEV  '],
+  ])(
+    'doit authentifier un utilisateur avec un email %s',
+    async (_label, email) => {
+      const userPassword = await bcrypt.hash('MotDePasseTresLoooooooong', 4);
+      const storedUser = {
+        _id: 'user-1',
+        userEmail: 'willyam@test.dev',
+        userPassword,
+      };
+      storedUsers.push(storedUser);
+      usersMapperMock.toGetUserDto.mockReturnValue({
+        id: 'user-1',
+        userEmail: 'willyam@test.dev',
+      });
+
+      const user = await service.validateUser(
+        email,
+        'MotDePasseTresLoooooooong',
+      );
+
+      expect(usersServiceMock.findUserEmail).toHaveBeenCalledWith(
+        'willyam@test.dev',
+      );
+      expect(usersMapperMock.toGetUserDto).toHaveBeenCalledWith(storedUser);
+      expect(user).toEqual({ id: 'user-1', userEmail: 'willyam@test.dev' });
+    },
+  );
 
   it("doit renvoyer 401 lors du refresh si l'utilisateur de la session n'existe plus", async () => {
     sessionsServiceMock.rotateRefreshToken.mockResolvedValue({
