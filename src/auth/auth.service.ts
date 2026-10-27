@@ -23,7 +23,10 @@ export class AuthService {
     private readonly sessionsService: SessionsService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<GetUserDto | null> {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await this.usersService.findUserEmail(normalizedEmail);
 
