@@ -44,11 +44,7 @@ export class AuthService {
   }
 
   async login(user: GetUserDto) {
-    const payload = { userEmail: user.userEmail, sub: user.id };
-
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
-    });
+    const accessToken = await this.signAccessToken(user.id, user.userEmail);
 
     const refreshToken = await this.sessionsService.createSession(user.id);
 
@@ -83,12 +79,9 @@ export class AuthService {
 
     const newUser = await this.usersService.createUser(data);
 
-    const accessToken = await this.jwtService.signAsync(
-      {
-        sub: newUser._id.toString(),
-        userEmail: newUser.userEmail,
-      },
-      { expiresIn: '15m' },
+    const accessToken = await this.signAccessToken(
+      newUser._id.toString(),
+      newUser.userEmail,
     );
 
     const refreshToken = await this.sessionsService.createSession(
@@ -118,10 +111,12 @@ export class AuthService {
       throw error;
     }
 
-    const accessToken = await this.jwtService.signAsync(
-      { sub: userId, userEmail: user.userEmail },
-      { expiresIn: '15m' },
-    );
+    const accessToken = await this.signAccessToken(userId, user.userEmail);
     return { refreshToken, accessToken };
+  }
+
+  // La durée de validité (15 min) est définie par signOptions dans AuthModule
+  private signAccessToken(userId: string, email: string): Promise<string> {
+    return this.jwtService.signAsync({ sub: userId, userEmail: email });
   }
 }

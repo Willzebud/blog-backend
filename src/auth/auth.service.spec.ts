@@ -129,3 +129,104 @@ describe('AuthService', () => {
     expect(jwtServiceMock.signAsync).not.toHaveBeenCalled();
   });
 });
+
+describe('AuthService - access tokens JWT', () => {
+  let service: AuthService;
+
+  // Même configuration de signature que JwtModule dans AuthModule
+  const jwtService = new JwtService({
+    secret: 'test-secret',
+    signOptions: { expiresIn: '15m' },
+  });
+
+  const usersServiceMock = {
+    findUserEmail: vi.fn(),
+    findUserById: vi.fn(),
+    createUser: vi.fn(),
+  };
+
+  const sessionsServiceMock = {
+    createSession: vi.fn(),
+    rotateRefreshToken: vi.fn(),
+  };
+
+  beforeEach(async () => {
+    vi.resetAllMocks();
+
+    usersServiceMock.findUserEmail.mockResolvedValue(null);
+    usersServiceMock.createUser.mockImplementation(
+      async (data: CreateUserDto) => ({ ...data, _id: 'user-1' }),
+    );
+    usersServiceMock.findUserById.mockResolvedValue({
+      id: 'user-1',
+      userEmail: 'willyam@test.dev',
+    });
+    sessionsServiceMock.createSession.mockResolvedValue('refresh-token');
+    sessionsServiceMock.rotateRefreshToken.mockResolvedValue({
+      refreshToken: 'nouveau-refresh-token',
+      userId: 'user-1',
+    });
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        UsersMapper,
+        { provide: UsersService, useValue: usersServiceMock },
+        { provide: JwtService, useValue: jwtService },
+        { provide: SessionsService, useValue: sessionsServiceMock },
+      ],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+  });
+
+  async function expectAccessToken(accessToken: string) {
+    const payload = await jwtService.verifyAsync(accessToken);
+
+    expect(Object.keys(payload).sort()).toEqual([
+      'exp',
+      'iat',
+      'sub',
+      'userEmail',
+    ]);
+    expect(payload).toMatchObject({
+      sub: 'user-1',
+      userEmail: 'willyam@test.dev',
+    });
+    expect(payload.exp - payload.iat).toBe(900);
+  }
+
+  it("doit signer l'access token de l'inscription avec sub, userEmail et 15 min", async () => {
+    const { accessToken } = await service.register({
+      userEmail: 'willyam@test.dev',
+      userPseudo: 'willy',
+      userFirstname: 'willyam',
+      userLastname: 'rib',
+      userAge: 32,
+      userPassword: 'MotDePasseTresLoooooooong',
+    });
+
+    await expectAccessToken(accessToken);
+  });
+
+  it("doit signer l'access token du login avec sub, userEmail et 15 min", async () => {
+    const { accessToken } = await service.login({
+      id: 'user-1',
+      userFirstname: 'willyam',
+      userLastname: 'rib',
+      userPseudo: 'willy',
+      userEmail: 'willyam@test.dev',
+    });
+
+    await expectAccessToken(accessToken);
+  });
+
+  it("doit signer l'access token du refresh avec sub, userEmail et 15 min", async () => {
+    const { accessToken, refreshToken } = await service.refresh(
+      'ancien-refresh-token',
+    );
+
+    expect(refreshToken).toBe('nouveau-refresh-token');
+    await expectAccessToken(accessToken);
+  });
+});
