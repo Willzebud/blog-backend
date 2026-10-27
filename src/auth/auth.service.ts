@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service.js';
@@ -60,7 +61,7 @@ export class AuthService {
 
   async register(payload: CreateUserDto) {
     const email = payload.userEmail.trim().toLowerCase();
-    const user = await this.usersService.findUserEmail(payload.userEmail);
+    const user = await this.usersService.findUserEmail(email);
 
     if (user !== null) {
       throw new ConflictException('Adresse email déjà utilisée');
@@ -102,10 +103,16 @@ export class AuthService {
     const { refreshToken, userId } =
       await this.sessionsService.rotateRefreshToken(oldRefreshToken);
 
-    const user = await this.usersService.findUserById(userId);
+    let user: GetUserDto;
 
-    if (!user) {
-      throw new UnauthorizedException('Utilisateur inexistant');
+    try {
+      user = await this.usersService.findUserById(userId);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new UnauthorizedException('Utilisateur inexistant');
+      }
+
+      throw error;
     }
 
     const accessToken = await this.jwtService.signAsync(
