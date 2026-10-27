@@ -22,7 +22,7 @@ export function ApiGetComments() {
     }),
     ApiParam({
       name: 'articleId',
-      description: "ID article",
+      description: 'ID article',
     }),
   );
 }

@@ -1,4 +1,4 @@
 export type PayloadType = {
-    sub: string;
-    userEmail: string;
-}
+  sub: string;
+  userEmail: string;
+};

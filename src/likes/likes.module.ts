@@ -11,9 +11,7 @@ import { LikesController } from './likes.controller.js';
 @Module({
   imports: [
     ArticlesModule,
-    MongooseModule.forFeature([
-      { name: Like.name, schema: LikeSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Like.name, schema: LikeSchema }]),
   ],
   controllers: [LikesController],
   providers: [LikesRepository, LikesService],

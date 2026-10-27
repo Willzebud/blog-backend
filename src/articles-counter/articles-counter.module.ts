@@ -8,7 +8,7 @@ import { ArticlesCounterController } from './articles-counter.controller.js';
 
 @Module({
   imports: [ArticlesModule, CommentsModule, LikesModule],
-   controllers: [ArticlesCounterController],
+  controllers: [ArticlesCounterController],
   providers: [ArticlesCounterService],
 })
 export class ArticlesCounterModule {}

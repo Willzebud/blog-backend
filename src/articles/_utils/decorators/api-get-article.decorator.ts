@@ -21,7 +21,7 @@ export function ApiGetArticle() {
     }),
     ApiParam({
       name: 'id',
-      description: "ID article",
+      description: 'ID article',
     }),
   );
 }

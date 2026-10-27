@@ -1,4 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { Error as MongooseError } from 'mongoose';
 
 @Catch()
@@ -23,9 +30,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     });
   }
 
-  private getErrorResponse(
-    exception: unknown,
-  ): { status: number; message: string | string[] } {
+  private getErrorResponse(exception: unknown): {
+    status: number;
+    message: string | string[];
+  } {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
 
@@ -34,17 +42,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message:
           typeof response === 'string'
             ? response
-            : (response as { message?: string | string[] }).message ??
-              exception.message,
+            : ((response as { message?: string | string[] }).message ??
+              exception.message),
       };
     }
 
     if (exception instanceof MongooseError.ValidationError) {
       return {
         status: HttpStatus.BAD_REQUEST,
-        message: Object.values(exception.errors).map(
-          (error) => error.message,
-        ),
+        message: Object.values(exception.errors).map((error) => error.message),
       };
     }
 
@@ -70,7 +76,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status: exception.status,
         message:
           exception.status < 500
-            ? HttpStatus[exception.status] ?? 'Erreur HTTP'
+            ? (HttpStatus[exception.status] ?? 'Erreur HTTP')
             : 'Internal server error',
       };
     }

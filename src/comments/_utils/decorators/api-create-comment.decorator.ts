@@ -27,7 +27,7 @@ export function ApiCreateComment() {
     }),
     ApiParam({
       name: 'articleId',
-      description: "ID article",
+      description: 'ID article',
     }),
   );
 }

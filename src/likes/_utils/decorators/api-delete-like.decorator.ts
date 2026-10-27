@@ -21,7 +21,7 @@ export function ApiDeleteLike() {
     }),
     ApiParam({
       name: 'articleId',
-      description: "ID article",
+      description: 'ID article',
     }),
   );
 }

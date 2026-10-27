@@ -29,7 +29,7 @@ export function ApiCreateLike() {
     }),
     ApiParam({
       name: 'articleId',
-      description: "ID article",
+      description: 'ID article',
     }),
   );
 }
