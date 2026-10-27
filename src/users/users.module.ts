@@ -12,6 +12,6 @@ import { UsersMapper } from './_utils/mappers/users.mapper.js';
   ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, UsersMapper],
-  exports: [UsersService],
+  exports: [UsersService, UsersMapper],
 })
 export class UsersModule {}

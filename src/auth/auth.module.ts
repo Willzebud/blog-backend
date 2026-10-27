@@ -4,7 +4,6 @@ import { UsersModule } from '../users/users.module.js';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller.js';
 import { ConfigService } from '@nestjs/config';
-import { UsersMapper } from '../users/_utils/mappers/users.mapper.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { SessionsModule } from '../sessions/sessions.module.js';
 
@@ -22,6 +21,6 @@ import { SessionsModule } from '../sessions/sessions.module.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersMapper, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
