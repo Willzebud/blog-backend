@@ -1,7 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -14,9 +13,6 @@ export function ApiUserMe() {
     }),
     ApiUnauthorizedResponse({
       description: 'Token absent, invalide ou expiré',
-    }),
-    ApiNotFoundResponse({
-      description: 'Utilisateur non trouvé',
     }),
   );
 }

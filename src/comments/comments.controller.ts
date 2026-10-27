@@ -11,7 +11,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import type { Request } from 'express';
 
 import { CommentsService } from './comments.service.js';
@@ -46,7 +45,6 @@ export class CommentsController {
 
   // Create comment
   @Post('articles/:articleId/comments')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiCreateComment()
   create(
